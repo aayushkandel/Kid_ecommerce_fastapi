@@ -1,7 +1,7 @@
 from sqlalchemy import Column, BigInteger, String, Text, DateTime,ForeignKey,Integer
 from sqlalchemy.sql import func
 from src.utils.db import Base
-
+from sqlalchemy.orm import relationship
 
 class Products(Base):
     __tablename__="products"
@@ -15,6 +15,10 @@ class Products(Base):
     stock_level=Column(Integer,nullable=True)
     created_at = Column(DateTime,server_default=func.now(),nullable=False)
     updated_at = Column(DateTime,server_default=func.now(),onupdate=func.now(),nullable=False )
+    product_variant_id=Column(Integer,ForeignKey("product_variants.id"),nullable=True)
+
+    category = relationship("Category", back_populates="products")
+    product_variants=relationship("ProductVariant", back_populates="products")
 
 
 

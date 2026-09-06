@@ -3,10 +3,11 @@ from src.category import controller
 from src.category.dtos import CategoryBase
 from src.utils.db import get_db
 from src.user.is_auth import is_admin_authenticated
+
 category_routes=APIRouter(prefix="/categories")
 
 @category_routes.post("/create_category")
-def create_category(body:CategoryBase,db=Depends(get_db),admin= Depends(is_admin_authenticated)):
+def create_category(body:CategoryBase,db=Depends(get_db) ):
     return controller.create_category(body,db)
 
 @category_routes.get("/all_category")

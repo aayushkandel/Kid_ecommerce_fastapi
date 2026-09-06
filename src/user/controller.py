@@ -90,12 +90,12 @@ def adminRegister(body:AdminRegisterBase, db:Session):
 
 def login_user(body: LoginBase, db: Session):
 
-    user = db.query(User).filter(User.username == body.username).first()
+    user = db.query(User).filter(User.email == body.email).first()
 
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Wrong username"
+            detail="Wrong email"
         )
 
     if not verify_password(body.password, user.password):
@@ -116,9 +116,9 @@ def login_user(body: LoginBase, db: Session):
         {"_id": user.id,"role": user.role,"exp": exp_time.timestamp()},settings.SECRET_KEY,algorithm=settings.ALGORITHM)
 
     return {
-        "message": "Login successful",
-        "username": user.username,
-        "role": user.role,
+        # "message": "Login successful",
+        "email": user.email,
+        # "role": user.role,
         "token": token,
     }
 

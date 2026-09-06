@@ -20,7 +20,7 @@ def register(body:UserRegisterBase,db:Session=Depends(get_db)):
 def register(body:AdminRegisterBase,db:Session=Depends(get_db)):
     return controller.adminRegister(body,db)
 
-@user_router.post("/login",status_code=status.HTTP_200_OK)
+@user_router.post("/login",status_code=200)
 def login(body:LoginBase,db:Session= Depends(get_db)):
     return controller.login_user(body,db)
 

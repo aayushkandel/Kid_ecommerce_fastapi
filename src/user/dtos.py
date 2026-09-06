@@ -34,7 +34,7 @@ class UpdateUser(BaseModel):
    
 
 class LoginBase(BaseModel):
-    username:str
+    email:str
     password:str
 
 

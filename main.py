@@ -10,8 +10,21 @@ from src.product_varients.router import product_varient_routes
 from src.user.router import user_router
 from src.cart.router import cart_routes
 from src.order.router import order_routes
+from fastapi.middleware.cors import CORSMiddleware
 
 app=FastAPI()
+
+origins=['http://localhost:5173']
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+
 app.include_router(product_routes)
 app.include_router(category_routes)
 app.include_router(product_varient_routes)

@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from src.products.models import ProductGallery
 from src.products.gallery import upload_product_image
 from src.category.models import Category
+from src.product_varients.models import ProductVariant
 
 
 
@@ -13,13 +14,12 @@ def create_product(body:ProductsBase,db:Session):
     exist_category=db.query(Category).filter(Category.id==body.category_id).first()
     if not exist_category:
         raise HTTPException(status_code=404,detail=f"Category id {body.category_id} doesnot exist")
-
-    exist_product=db.query(Products).filter(Products.name==body.name).first()
-
-    if exist_product:
-       raise HTTPException(status_code=404, detail=f" Product {body.name} already exist.")
+    if body.product_variant_id is not None:
+        exist_product_variant=db.query(ProductVariant).filter(ProductVariant.id==body.product_variant_id)
+        if not exist_product_variant:
+                raise HTTPException(status_code=404,detail=f"product variant id {body.product_variant_id} doesnot exist")
     data=body.model_dump()
-    new_task=Products(name=data["name"], slug=data["slug"], description=data["description"],price=data["price"],stock_level=data["stock_level"],category_id=body.category_id)
+    new_task=Products(name=data["name"], slug=data["slug"], description=data["description"],price=data["price"],stock_level=data["stock_level"],category_id=body.category_id,product_variant_id=body.product_variant_id)
 
     db.add(new_task)
     db.commit()
@@ -29,7 +29,34 @@ def create_product(body:ProductsBase,db:Session):
 def get_products(db:Session):
     products=db.query(Products).all()  
 
-    return products
+    return [
+        {
+            "id": product.id,
+            "name": product.name,
+            "category_id":product.category_id,
+            "product_variant_id": product.product_variant_id or None,
+
+            
+            "description":product.description,
+            "category": product.category.name,
+           "product_variant_name": (
+            product.product_variants.variant_name
+            if product.product_variants
+            else None
+        ),
+
+        "product_variant_value": (
+            product.product_variants.variant_value
+            if product.product_variants
+            else None
+        ),
+
+            "slug": product.slug,
+            "price": product.price,
+            "stock_level": product.stock_level,
+        }
+        for product in products
+    ]
 
 def get_one_product(product_id:int,db:Session):
     one_product=db.query(Products).get(product_id)

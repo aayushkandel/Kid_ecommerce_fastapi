@@ -6,12 +6,9 @@ from src.products.models import Products
 
 
 def create_product_varients(body:ProductVarientBase,db:Session):
-    exist_product=db.query(Products).filter(Products.id==body.product_id).first()
-
-    if not exist_product:
-        raise HTTPException(status_code=404,detail=f"Product with given product id {body.product_id} doesnot exist")
+  
     data=body.model_dump()
-    new_product_varients=ProductVariant(product_id=body.product_id,variant_name=data["variant_name"], variant_type=data["variant_type"], variant_value=data["variant_value"], description=data["description"])
+    new_product_varients=ProductVariant(variant_name=data["variant_name"],variant_value=data["variant_value"], description=data["description"])
 
     db.add(new_product_varients)
     db.commit()
