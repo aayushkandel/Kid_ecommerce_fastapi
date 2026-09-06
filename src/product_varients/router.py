@@ -21,10 +21,11 @@ def get_one_product_varients(product_id:int,db=Depends(get_db),data=Depends(is_a
     return controller.get_one_product_varient(product_id,db)
 
 
-@product_varient_routes.put("/update_procuct_varient/{product_id}")
+@product_varient_routes.put("/update_product_varient/{product_id}")
 def update_product_varient(body:ProductVarientBase,product_id:int, db=Depends(get_db),data=Depends(is_admin_authenticated)):
     return controller.update_product_varient(body,product_id,db)
 
 @product_varient_routes.delete("/delete_product_varient/{product_id}")
 def delete_product_varient(product_id,db=Depends(get_db),data=Depends(is_admin_authenticated)):
     return controller.delete_product_varient(product_id,db)
+

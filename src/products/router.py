@@ -1,6 +1,6 @@
 from fastapi import APIRouter,Depends,status,UploadFile,File
 from src.products import controller
-from src.products.dtos import ProductsBase,ProductsResponseBase,GalleryResponse,ProductsUpdateResponseBase,AllProductsResponseBase
+from src.products.dtos import ProductsBase,ProductsResponseBase,GalleryResponse,ProductsUpdateResponseBase,AddRates
 from src.utils.db import get_db
 from typing import List
 from sqlalchemy.orm import Session
@@ -31,7 +31,7 @@ def update_product(body:ProductsBase,product_id:int, db:Session=Depends(get_db),
     return controller.update_product(body,product_id,db)
 
 @product_routes.delete("/delete/{product_id}")
-def delete_product(product_id,db:Session=Depends(get_db),admin=Depends(is_admin_authenticated)):
+def delete_product(product_id:int,db:Session=Depends(get_db),admin=Depends(is_admin_authenticated)):
     return controller.delete_product(product_id,db)
 
 @product_routes.post("/upload/{product_id}",response_model=GalleryResponse)
@@ -45,3 +45,21 @@ def get_images(product_id:int,db:Session=Depends(get_db),admin=Depends(is_admin_
 @product_routes.delete("/delete_image/{image_id}")
 def delete_image(image_id:int, db:Session=Depends(get_db),admin=Depends(is_admin_authenticated)):
     return controller.delete_product_image(image_id,db)
+
+# for products rates
+
+@product_routes.post("/add_rates")
+def postRates(body:AddRates,db:Session=Depends(get_db)):
+    return controller.addProductRates(body,db)
+
+@product_routes.get("/all_rates",status_code=status.HTTP_200_OK)
+def getRates(db:Session=Depends(get_db)):
+    return controller.getProductRates(db)
+
+@product_routes.put("/update_rates/{product_id}/{product_variant_id}",status_code=status.HTTP_201_CREATED)
+def updateRates(body:AddRates,product_id:int,product_variant_id:int,db:Session=Depends(get_db)):
+    return controller.updateProductRates(body,product_id,product_variant_id,db)
+
+@product_routes.delete("/delete_rates/{product_id}/{product_variant_id}",status_code=status.HTTP_200_OK)
+def deleteRates(product_id:int,product_variant_id:int,db:Session=Depends(get_db)):
+    return controller.deleteProductRates(product_id,product_variant_id,db)

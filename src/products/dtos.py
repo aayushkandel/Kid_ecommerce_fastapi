@@ -2,7 +2,6 @@ from pydantic import BaseModel
 
 class ProductsBase(BaseModel):
     category_id:int
-    product_variant_id: int | None=None
     name:str
     slug:str
     description:str
@@ -37,5 +36,8 @@ class GalleryResponse(BaseModel):
     images: list[str]
 
 
-    
-
+class AddRates(BaseModel):
+    rate:int
+    stock_level:int
+    product_id:int
+    product_variant_id:int | None=None

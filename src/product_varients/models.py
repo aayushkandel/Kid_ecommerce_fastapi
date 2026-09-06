@@ -8,11 +8,11 @@ class ProductVariant(Base):
     __tablename__ = "product_variants"
 
     id = Column(Integer,primary_key=True,autoincrement=True)
+    
     variant_name = Column(String(255),nullable=False)
     variant_value = Column(String(20),nullable=False)
     description = Column(Text,nullable=True)
     created_at = Column(DateTime,server_default=func.now(),nullable=False)
     updated_at = Column(DateTime,server_default=func.now(),onupdate=func.now(),nullable=False)
 
-
-    products=relationship("Products",back_populates="product_variants")
+    product_rates = relationship("ProductRate",back_populates="product_variants")

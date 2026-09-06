@@ -1,6 +1,6 @@
-from src.products.dtos import ProductsBase
+from src.products.dtos import ProductsBase,AddRates
 from sqlalchemy.orm import Session
-from src.products.models import Products
+from src.products.models import Products,ProductRate
 from fastapi import HTTPException
 from src.products.models import ProductGallery
 from src.products.gallery import upload_product_image
@@ -14,12 +14,9 @@ def create_product(body:ProductsBase,db:Session):
     exist_category=db.query(Category).filter(Category.id==body.category_id).first()
     if not exist_category:
         raise HTTPException(status_code=404,detail=f"Category id {body.category_id} doesnot exist")
-    if body.product_variant_id is not None:
-        exist_product_variant=db.query(ProductVariant).filter(ProductVariant.id==body.product_variant_id)
-        if not exist_product_variant:
-                raise HTTPException(status_code=404,detail=f"product variant id {body.product_variant_id} doesnot exist")
+   
     data=body.model_dump()
-    new_task=Products(name=data["name"], slug=data["slug"], description=data["description"],price=data["price"],stock_level=data["stock_level"],category_id=body.category_id,product_variant_id=body.product_variant_id)
+    new_task=Products(name=data["name"], slug=data["slug"], description=data["description"],price=data["price"],stock_level=data["stock_level"],category_id=body.category_id)
 
     db.add(new_task)
     db.commit()
@@ -34,23 +31,8 @@ def get_products(db:Session):
             "id": product.id,
             "name": product.name,
             "category_id":product.category_id,
-            "product_variant_id": product.product_variant_id or None,
-
-            
             "description":product.description,
             "category": product.category.name,
-           "product_variant_name": (
-            product.product_variants.variant_name
-            if product.product_variants
-            else None
-        ),
-
-        "product_variant_value": (
-            product.product_variants.variant_value
-            if product.product_variants
-            else None
-        ),
-
             "slug": product.slug,
             "price": product.price,
             "stock_level": product.stock_level,
@@ -78,9 +60,7 @@ def update_product(body:ProductsBase, product_id:int,db:Session):
     body=body.model_dump()
     for field, value in body.items():
         setattr(one_product,field,value)
-    # one_product.name=body.name
-    # one_product.slug=body.slug
-    # one_product.description=body.description
+
 
     db.add(one_product)
     db.commit()
@@ -170,4 +150,49 @@ def delete_product_image(image_id:int,db:Session):
     return{
         "message":"Image deleted successfully"
     }
+
+
+def addProductRates(body:AddRates,db:Session):
+    data=body.model_dump()
+    new_rate=ProductRate(rate=data["rate"],stock_level=data["stock_level"],product_id=body.product_id,product_variant_id=body.product_variant_id)
+    db.add(new_rate)
+    db.commit()
+    db.refresh(new_rate)
+    return new_rate
+
+def getProductRates(db:Session):
+    rates=db.query(ProductRate).all()
+    return {"data": rates}
+
+def updateProductRates(body: AddRates,product_id: int,product_variant_id: int,db: Session):
+    rates = db.query(ProductRate).filter(ProductRate.product_id == product_id,ProductRate.product_variant_id == product_variant_id).first()
+
+    if not rates:
+        raise HTTPException(
+            status_code=404,
+            detail="Product rate not found"
+        )
+
+    body_data = body.model_dump()
+
+    for field, value in body_data.items():
+        setattr(rates, field, value)
+
+    db.commit()
+    db.refresh(rates)
+
+    return rates
+
+def deleteProductRates(product_id:int,product_variant_id:int,db:Session):
+    delRates = db.query(ProductRate).filter(ProductRate.product_id == product_id,ProductRate.product_variant_id == product_variant_id).first()
     
+    if not delRates:
+            raise HTTPException(
+                status_code=404,
+                detail="Product rate not found"
+            )
+
+    db.delete(delRates)
+    db.commit()
+
+    return{"message":"Rates deleted successfully"}
