@@ -35,12 +35,17 @@ def delete_product(product_id:int,db:Session=Depends(get_db),admin=Depends(is_ad
     return controller.delete_product(product_id,db)
 
 @product_routes.post("/upload/{product_id}",response_model=GalleryResponse)
-def upload_images(product_id: int,images: List[UploadFile] = File(...),db: Session = Depends(get_db),admin=Depends(is_admin_authenticated)):
+def upload_images(product_id: int,images: List[UploadFile] = File(...),db: Session = Depends(get_db)):
     return controller.upload_gallery_images(product_id,images,db)
 
 @product_routes.get("/get_images/{product_id}")
-def get_images(product_id:int,db:Session=Depends(get_db),admin=Depends(is_admin_authenticated)):
+def get_images(product_id:int,db:Session=Depends(get_db)):
     return controller.get_product_images(product_id,db)
+
+@product_routes.get("/all_images")
+def get_all_image(db:Session=Depends(get_db)):
+    return controller.get_all_images(db)
+
 
 @product_routes.delete("/delete_image/{image_id}")
 def delete_image(image_id:int, db:Session=Depends(get_db),admin=Depends(is_admin_authenticated)):

@@ -11,8 +11,11 @@ from src.user.router import user_router
 from src.cart.router import cart_routes
 from src.order.router import order_routes
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 app=FastAPI()
+
+app.mount("/gallery", StaticFiles(directory="gallery"), name="gallery")
 
 origins=['http://localhost:5173']
 

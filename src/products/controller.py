@@ -137,8 +137,34 @@ def get_product_images(product_id:int,db:Session):
         "images":images
     }
 
+def get_all_images(db: Session):
+
+    galleries = (
+        db.query(ProductGallery, Products)
+        .join(Products, ProductGallery.product_id == Products.id)
+        .all()
+    )
+
+    result = {}
+
+    for gallery, product in galleries:
+
+        if product.id not in result:
+            result[product.id] = {
+                "product_id": product.id,
+                "product_name": product.name,
+                "images": []
+            }
+
+        result[product.id]["images"].append({
+            "id": gallery.id,
+            "image": gallery.image
+        })
+
+    return list(result.values())
+
 def delete_product_image(image_id:int,db:Session):
-    image=db.query(ProductGallery).get(image_id)
+    image=db.query(ProductGallery).filter(ProductGallery.id==image_id).first()
     if not image:
         raise HTTPException(
             status_code=404,
@@ -152,36 +178,94 @@ def delete_product_image(image_id:int,db:Session):
     }
 
 
-def addProductRates(body:AddRates,db:Session):
-    data=body.model_dump()
-    new_rate=ProductRate(rate=data["rate"],stock_level=data["stock_level"],product_id=body.product_id,product_variant_id=body.product_variant_id)
+def addProductRates(body: AddRates, db: Session):
+
+    new_rate = ProductRate(
+        rate=body.rate,
+        stock_level=body.stock_level,
+        product_id=body.product_id,
+        product_variant_id=body.product_variant_id
+    )
+
     db.add(new_rate)
     db.commit()
     db.refresh(new_rate)
-    return new_rate
 
-def getProductRates(db:Session):
-    rates=db.query(ProductRate).all()
-    return {"data": rates}
+    return {
+        "id": new_rate.id,
+
+        "product_id": new_rate.product_id,
+        "product_name": new_rate.products.name
+            if new_rate.products else None,
+
+        "product_variant_id": new_rate.product_variant_id,
+
+        "variant_name": new_rate.product_variants.variant_name
+            if new_rate.product_variants else None,
+
+        "variant_value": new_rate.product_variants.variant_value
+            if new_rate.product_variants else None,
+
+        "rate": new_rate.rate,
+        "stock_level": new_rate.stock_level
+    }
+
+def getProductRates(db: Session):
+
+    rates = (
+        db.query(ProductRate)
+        .join(Products, ProductRate.product_id == Products.id)
+        .outerjoin(
+            ProductVariant,
+            ProductRate.product_variant_id == ProductVariant.id
+        )
+        .all()
+    )
+
+    data = []
+
+    for rate in rates:
+        data.append({
+            "id": rate.id,
+            "product_id": rate.product_id,
+            "product_name": rate.products.name if rate.products else None,
+
+            "product_variant_id": rate.product_variant_id,
+            "variant_name": (
+                rate.product_variants.variant_name
+                if rate.product_variants
+                else None
+            ),
+            "variant_value": (
+                rate.product_variants.variant_value
+                if rate.product_variants
+                else None
+            ),
+
+            "rate": rate.rate,
+            "stock_level": rate.stock_level
+        })
+
+    return {
+        "data": data
+    }
 
 def updateProductRates(body: AddRates,product_id: int,product_variant_id: int,db: Session):
-    rates = db.query(ProductRate).filter(ProductRate.product_id == product_id,ProductRate.product_variant_id == product_variant_id).first()
+    rate_data = db.query(ProductRate).filter(ProductRate.product_id == product_id,ProductRate.product_variant_id == product_variant_id).first()
 
-    if not rates:
+    if not rate_data:
         raise HTTPException(
             status_code=404,
             detail="Product rate not found"
         )
 
-    body_data = body.model_dump()
-
-    for field, value in body_data.items():
-        setattr(rates, field, value)
+    rate_data.rate = body.rate
+    rate_data.stock_level = body.stock_level
 
     db.commit()
-    db.refresh(rates)
+    db.refresh(rate_data)
 
-    return rates
+    return rate_data
 
 def deleteProductRates(product_id:int,product_variant_id:int,db:Session):
     delRates = db.query(ProductRate).filter(ProductRate.product_id == product_id,ProductRate.product_variant_id == product_variant_id).first()
