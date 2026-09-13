@@ -18,11 +18,11 @@ def create_product(body:ProductsBase,db:Session=Depends(get_db),admin=Depends(is
     return controller.create_product(body,db)
 
 @product_routes.get("/all_products",status_code=status.HTTP_200_OK)
-def get_all_products(db:Session=Depends(get_db),admin=Depends(is_admin_authenticated)):
+def get_all_products(db:Session=Depends(get_db)):
     return controller.get_products(db)
 
-@product_routes.get("/one_product/{product_id}",response_model=ProductsResponseBase,status_code=status.HTTP_200_OK)
-def get_one_product(product_id:int,db:Session=Depends(get_db),data=Depends(is_admin_authenticated)):
+@product_routes.get("/one_product/{product_id}",status_code=status.HTTP_200_OK)
+def get_one_product(product_id:int,db:Session=Depends(get_db)):
     return controller.get_one_product(product_id,db)
 
 
@@ -60,6 +60,11 @@ def postRates(body:AddRates,db:Session=Depends(get_db)):
 @product_routes.get("/all_rates",status_code=status.HTTP_200_OK)
 def getRates(db:Session=Depends(get_db)):
     return controller.getProductRates(db)
+
+@product_routes.get("/one_product_rate/{product_id}",status_code=status.HTTP_200_OK)
+def getOneRate(product_id:int,db:Session=Depends(get_db)):
+    return controller.getOneProductRate(product_id,db)
+
 
 @product_routes.put("/update_rates/{product_id}/{product_variant_id}",status_code=status.HTTP_201_CREATED)
 def updateRates(body:AddRates,product_id:int,product_variant_id:int,db:Session=Depends(get_db)):

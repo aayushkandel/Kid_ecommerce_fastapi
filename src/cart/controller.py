@@ -67,3 +67,25 @@ def update_cart(body:cartUpdateBase,cart_id,db:Session,user:User):
        db.refresh(carts)
 
        return carts
+
+def delete_cart(cart_id: int, db: Session, user: User):
+    cart = db.query(Cart).filter(Cart.id == cart_id).first()
+
+    if not cart:
+        raise HTTPException(
+            status_code=404,
+            detail="No cart found"
+        )
+
+    if cart.user_id != user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="You are not allowed to delete this cart"
+        )
+
+    db.delete(cart)
+    db.commit()
+
+    return {
+        "message": "Cart deleted successfully"
+    }

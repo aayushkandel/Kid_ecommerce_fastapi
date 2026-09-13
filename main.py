@@ -17,7 +17,7 @@ app=FastAPI()
 
 app.mount("/gallery", StaticFiles(directory="gallery"), name="gallery")
 
-origins=['http://localhost:5173']
+origins=['http://localhost:5173','http://localhost:5174']
 
 app.add_middleware(
     CORSMiddleware,

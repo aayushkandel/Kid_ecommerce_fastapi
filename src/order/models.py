@@ -27,7 +27,7 @@ class OrderItem(Base):
     product_id = Column(BigInteger,ForeignKey("products.id", ondelete="CASCADE"),nullable=False)
     product_variant_id = Column(Integer,ForeignKey("product_variants.id", ondelete="CASCADE"),nullable=True)
     order_id = Column(BigInteger,ForeignKey("orders.id", ondelete="CASCADE"),nullable=False)
-    cart_id = Column(BigInteger,ForeignKey("carts.id", ondelete="CASCADE"),nullable=False)
+    cart_id = Column(BigInteger,ForeignKey("carts.id", ondelete="SET NULL"),nullable=True)
     quantity = Column(Integer,default=1,nullable=False)
     rate = Column(Numeric(10, 2),default=0,nullable=False)
     created_at = Column(DateTime,server_default=func.now(),nullable=False)

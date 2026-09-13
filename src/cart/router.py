@@ -20,3 +20,7 @@ def get_cart(db:Session=Depends(get_db),user:User=Depends(is_authenticated)):
 @cart_routes.put("/update_cart/{cart_id}",response_model=cartBase)
 def update_cart(body:cartUpdateBase,cart_id:int,db:Session=Depends(get_db),user:User=Depends(is_authenticated)):
     return controller.update_cart(body,cart_id,db,user)
+
+@cart_routes.delete("/delete_cart/{cart_id}")
+def delete_product_cart(cart_id:int,db:Session=Depends(get_db),user:User=Depends(is_authenticated)):
+    return controller.delete_cart(cart_id,db,user)

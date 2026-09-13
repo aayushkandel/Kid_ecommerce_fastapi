@@ -16,6 +16,14 @@ def create_order(db:Session=Depends(get_db),user=Depends(is_authenticated)):
 def make_payment(body: PaymentBase,db: Session = Depends(get_db),user: User = Depends(is_authenticated)):
     return controller.create_payment(body,db,user)
 
-@order_routes.put("/cancel")
+@order_routes.put("/cancel_reason/")
 def cancel_order(body:CancelOrder,db:Session=Depends(get_db),user:User=Depends(is_authenticated)):
     return controller.cancel_order(body,db,user)
+
+@order_routes.get("/getmyorder")
+def getOrder(db:Session=Depends(get_db),user:User=Depends(is_authenticated)):
+    return controller.getMyOrder(db,user)
+
+@order_routes.delete("/deletemyorder/{order_id}")
+def deleteOrder(order_id: int, db: Session = Depends(get_db), user: User = Depends(is_authenticated)):
+    return controller.deleteMyOrder(db, user, order_id)

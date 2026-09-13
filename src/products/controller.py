@@ -47,7 +47,16 @@ def get_one_product(product_id:int,db:Session):
             status_code=404,
             detail="No product found"
         )
-    return one_product
+    return   {
+                "id": one_product.id,
+                "name": one_product.name,
+                "category_id":one_product.category_id,
+                "description":one_product.description,
+                "category": one_product.category.name,
+                "slug": one_product.slug,
+                "price": one_product.price,
+                "stock_level": one_product.stock_level,
+            }
 
 def update_product(body:ProductsBase, product_id:int,db:Session):
     one_product=db.query(Products).get(product_id)
@@ -249,6 +258,36 @@ def getProductRates(db: Session):
     return {
         "data": data
     }
+
+def getOneProductRate(product_id:int,db:Session):
+    one_product_rate=db.query(ProductRate).filter(ProductRate.product_id==product_id).all()
+    if not one_product_rate:
+        raise HTTPException(status_code=404, detail=f"Product Rate with product id {product_id} not found")
+
+    return {
+        "product_id": product_id,
+        "product_name": one_product_rate[0].products.name,
+        "product_variants": [
+            {
+                "product_variant_id": rate.product_variant_id,
+                "product_variant_name": (
+                    rate.product_variants.variant_name
+                    if rate.product_variants
+                    else None
+                ),
+                "product_variant_value": (
+                                    rate.product_variants.variant_value
+                                    if rate.product_variants
+                                    else None
+                                ),
+                "product_rate": rate.rate,
+                "product_stock_level": rate.stock_level
+            }
+            for rate in one_product_rate
+        ]
+    }
+
+    
 
 def updateProductRates(body: AddRates,product_id: int,product_variant_id: int,db: Session):
     rate_data = db.query(ProductRate).filter(ProductRate.product_id == product_id,ProductRate.product_variant_id == product_variant_id).first()

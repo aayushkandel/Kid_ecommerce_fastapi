@@ -118,7 +118,7 @@ def login_user(body: LoginBase, db: Session):
     return {
         # "message": "Login successful",
         "email": user.email,
-        # "role": user.role,
+        "username": user.username,
         "token": token,
     }
 

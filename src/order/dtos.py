@@ -14,7 +14,7 @@ class createOrder(BaseModel):
     user_id:int
     cart_id:int
     remarks:str
-    cancel_reason:str
+
 
 
 class PaymentBase(BaseModel):
@@ -36,5 +36,5 @@ class OrderResponse(BaseModel):
 
 class CancelOrder(BaseModel):
     order_id:int
-    remarks:str
+    remarks:str | None = None
     cancel_reason:str
