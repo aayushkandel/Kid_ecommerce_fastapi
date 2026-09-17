@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from src.cart.models import Cart
 from fastapi import HTTPException,status
 from src.user.models import User
-from src.products.models import Products
+from src.products.models import Products,ProductRate
 from src.product_varients.models import ProductVariant
 
 def create_cart(body:cartBase,db:Session,user:User):
@@ -43,11 +43,42 @@ def create_cart(body:cartBase,db:Session,user:User):
            "data": new_cart
     }
 
-def get_cart(db:Session,user:User):
-       carts=db.query(Cart).filter(Cart.user_id==user.id).all()
-       if not carts:
-              raise HTTPException(status_code=404,detail="Cart not found")
-       return carts
+def get_cart(db: Session, current_user):
+
+    carts = db.query(Cart).filter(
+        Cart.user_id == current_user.id
+    ).all()
+
+    result = []
+
+    for cart in carts:
+
+        product = db.query(Products).filter(
+            Products.id == cart.product_id
+        ).first()
+
+        price = product.price
+
+        # If variant exists, get variant price
+        if cart.product_variant_id:
+
+            product_rate = db.query(ProductRate).filter(
+                ProductRate.product_id == cart.product_id,
+                ProductRate.product_variant_id == cart.product_variant_id
+            ).first()
+
+            if product_rate:
+                price = product_rate.rate
+
+        result.append({
+            "id": cart.id,
+            "product_id": cart.product_id,
+            "product_variant_id": cart.product_variant_id,
+            "quantity": cart.quantity,
+            "price": float(price or 0),
+        })
+
+    return result
 
 def update_cart(body:cartUpdateBase,cart_id,db:Session,user:User):
        carts:Cart=db.query(Cart).filter(Cart.id== cart_id).first()

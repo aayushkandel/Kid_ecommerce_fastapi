@@ -12,7 +12,7 @@ def upload_product_image(
     image: UploadFile
 ):
 
-    allowed_extensions = {".jpg", ".jpeg", ".png"}
+    allowed_extensions = {".jpg", ".jpeg", ".png",".webp"}
 
     # Get extension from filename
     extension = os.path.splitext(image.filename)[1].lower()
@@ -20,7 +20,7 @@ def upload_product_image(
     if extension not in allowed_extensions:
         raise HTTPException(
             status_code=400,
-            detail="Only JPEG, PNG and JPG images are allowed"
+            detail="Only JPEG, PNG, WEBP and JPG images are allowed"
         )
 
     # Convert product name into folder-friendly name

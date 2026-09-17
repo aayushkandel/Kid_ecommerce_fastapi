@@ -11,7 +11,7 @@ def create_category(body:CategoryBase,db=Depends(get_db) ):
     return controller.create_category(body,db)
 
 @category_routes.get("/all_category")
-def get_all_categories(db=Depends(get_db),admin= Depends(is_admin_authenticated)):
+def get_all_categories(db=Depends(get_db)):
     return controller.get_category(db)
 
 @category_routes.get("/one_category/{category_id}")
