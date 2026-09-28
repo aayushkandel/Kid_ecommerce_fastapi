@@ -6,7 +6,7 @@ from fastapi import HTTPException,status,Depends
 from pwdlib import PasswordHash
 import jwt
 from src.utils.settings import settings
-from datetime import datetime,timedelta
+from datetime import datetime,timedelta,timezone
 
 
 password_hash=PasswordHash.recommended()
